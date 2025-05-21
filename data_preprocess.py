@@ -7,9 +7,7 @@ from tqdm import tqdm
 from constants import Constants
 
 
-def slice_signal(file, segment_frames, hop_frames):
-    mix, _ = librosa.load(file, sr=Constants.SAMPLE_RATE, mono=True)
-
+def slice_signal(mix, segment_frames, hop_frames):
     slices = []
     mix_frames = len(mix)
     for end_idx in range(segment_frames, mix_frames, hop_frames):
@@ -19,10 +17,7 @@ def slice_signal(file, segment_frames, hop_frames):
     return slices, mix_frames
 
 
-def process_and_serialize(source_root: str,
-                          target_root: str,
-                          segment_frames: int,
-                          hop_frames: int):
+def process_and_serialize(source_root: str, target_root: str):
     if not os.path.exists(target_root):
         os.mkdir(target_root)
         print(f'Created directory {target_root}')
@@ -43,8 +38,11 @@ def process_and_serialize(source_root: str,
             if not os.path.exists(noisy_audiofile_full_path):
                 continue
 
-            clean_sliced, clean_frames = slice_signal(clean_audiofile_full_path, segment_frames, hop_frames)
-            noisy_sliced, noisy_frames = slice_signal(noisy_audiofile_full_path, segment_frames, hop_frames)
+            clean_mix, _ = librosa.load(clean_audiofile_full_path, sr=Constants.SAMPLE_RATE, mono=True)
+            noisy_mix, _ = librosa.load(noisy_audiofile_full_path, sr=Constants.SAMPLE_RATE, mono=True)
+
+            clean_sliced, clean_frames = slice_signal(clean_mix, Constants.SEGMENT_FRAMES, Constants.HOP_FRAMES)
+            noisy_sliced, noisy_frames = slice_signal(noisy_mix, Constants.SEGMENT_FRAMES, Constants.HOP_FRAMES)
             if not clean_frames == noisy_frames:
                 continue
 
@@ -58,14 +56,9 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--src', type=str, required=True, help="Path to source wav dataset")
     parser.add_argument('--dst', type=str, required=True, help="Path to save npy dataset")
-    parser.add_argument('--segment_frames', type=int, required=True, help="Segment frames")
-    parser.add_argument('--hop_frames', type=int, required=True, help="Hop frames")
     args = parser.parse_args()
 
-    process_and_serialize(source_root=args.src,
-                          target_root=args.dst,
-                          segment_frames=args.segment_frames,
-                          hop_frames=args.hop_frames)
+    process_and_serialize(source_root=args.src, target_root=args.dst)
 
 
 if __name__ == '__main__':
