@@ -8,7 +8,7 @@ from torch import optim
 from torch.autograd import Variable
 from torch.utils.data import DataLoader
 # POTENTIAL REFACTOR
-from torch.cuda.amp import autocast, GradScaler
+from torch.amp import autocast, GradScaler
 
 from model import Generator, Discriminator
 from mr_waveform_dataset import MRWaveformDataset
