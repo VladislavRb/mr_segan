@@ -57,9 +57,6 @@ def main():
     print("# generator parameters:", sum(param.numel() for param in generator.parameters()))
     print("# discriminator parameters:", sum(param.numel() for param in discriminator.parameters()))
 
-    generator.train()
-    discriminator.train()
-
     g_optimizer = optim.RMSprop(generator.parameters(), lr=args.lr)
     d_optimizer = optim.RMSprop(discriminator.parameters(), lr=args.lr)
 
@@ -77,6 +74,9 @@ def main():
     val_dataset_length = len(val_data_loader.dataset)
 
     for epoch in range(num_epochs):
+        generator.train()
+        discriminator.train()
+
         train_bar = tqdm(train_data_loader)
 
         avg_train_d_clean_loss = 0
@@ -158,8 +158,6 @@ def main():
 
         avg_val_loss /= val_dataset_length
         print(f'Validation MSE loss: {avg_val_loss:.6f}')
-
-        generator.train()
 
         if avg_val_loss < best_val_loss:
             best_val_loss = avg_val_loss
