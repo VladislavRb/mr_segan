@@ -93,7 +93,7 @@ def main():
             z = Variable(z)
 
             discriminator.zero_grad()
-            with autocast():
+            with autocast(device_type='cuda'):
                 outputs = discriminator(train_batch, ref_batch)
                 clean_loss = torch.mean((outputs - 1.0) ** 2)
 
@@ -108,7 +108,7 @@ def main():
             scaler.update()
 
             generator.zero_grad()
-            with autocast():
+            with autocast(device_type='cuda'):
                 generated_outputs = generator(train_noisy, z)
                 gen_noise_pair = torch.cat((generated_outputs, train_noisy), dim=1)
                 outputs = discriminator(gen_noise_pair, ref_batch)
@@ -150,7 +150,7 @@ def main():
                     noisy, clean, z = noisy.cuda(), clean.cuda(), z.cuda()
                 noisy, clean, z = Variable(noisy), Variable(clean), Variable(z)
 
-                with autocast():
+                with autocast(device_type='cuda'):
                     output = generator(noisy, z)
                     loss = nn.MSELoss()(output, clean)
 
